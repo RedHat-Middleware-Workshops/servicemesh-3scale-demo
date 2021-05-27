@@ -4,6 +4,7 @@
 :ossm-kiali: https://kiali-istio-system.{openshift-app-host}
 :ossm-jaeger: https://jaeger-istio-system.{openshift-app-host}
 :istio-ingress: http://istio-ingressgateway-istio-system.{openshift-app-host}
+:bookinfo-api: https://
 
 [id='api-mesh']
 = OpenShift Service Mesh and 3scale API Management Integration
@@ -51,13 +52,11 @@ Your password is: `{user-password}`
 [id="test-bookinfo-microservices-app"]
 == Access BookInfo Application with istio Ingress
 
-The BookInfo Application is deployed to *bookinfo* namespace and is set up with Service Mesh.
+The BookInfo Application is deployed to *bookinfo* namespace. The service mesh is configured with a Service Mesh Member Roll for the *bookinfo* namespace so that Service Mesh control plane in this namespace can control the microservices deployed to the *bookinfo* namespace.
 
 .BookInfo Istio Ingress with Service Mesh
 image::images/bookinfo_servicemesh_config.png[bookinfo_servicemesh_config, role="integr8ly-img-responsive"]
 
-
-The above setup is pre-configured for *BookInfo* application. 
 
 Follow the below steps to verify your *BookInfo* application is working:
 
@@ -69,7 +68,7 @@ Follow the below steps to verify your *BookInfo* application is working:
  https://reqbin.com/curl
 ----
 
-. Copy and paste the following URL. It should look like.
+. Copy and paste the following URL. 
 +
 [source,bash,subs="attributes+"]
 ----
@@ -81,7 +80,6 @@ curl {istio-ingress}/api/v1/products
 . The page will load the response information from the service. You will be able to see the _RESPONSE HEADERS_ and the actual _RESPONSE_BODY_. You should expect a _*_HTTP 200_ response and the response JSON as follows:
 +
 image::images/online-curl-response.png[online-curl-response, role="integr8ly-img-responsive"]
-
 
 
 [type=verification]
@@ -100,6 +98,32 @@ In this section, we use the Istio Ingress to the BookInfo application as a backe
 image::images/bookinfo_sm_api.png[bookinfo_sm_api, role="integr8ly-img-responsive"]
 
 With this configuration, the API Developers and Developer Apps send API request to the gateway URL provided by the 3scale APIcast Gateway, deployed separately. This in turn will validate the API user and redirect the call to the backend (Istio Ingress). Thus, each request flows through 2 gateways (APIcast and Istio Ingress) before it reaches the ProductPage service.
+
+
+Follow the below steps to verify your *BookInfo* application is working:
+
+
+. Open a browser window and navigate to:
++
+[source,bash,subs="attributes+"]
+----
+ https://reqbin.com/curl
+----
+
+. Copy and paste the following URL. 
++
+[source,bash,subs="attributes+"]
+----
+curl {istio-ingress}/api/v1/products
+----
+
+. Click the *Run* button.
+
+. The page will load the response information from the service. You will be able to see the _RESPONSE HEADERS_ and the actual _RESPONSE_BODY_. You should expect a _*_HTTP 200_ response and the response JSON as follows:
++
+image::images/online-curl-response.png[online-curl-response, role="integr8ly-img-responsive"]
+
+
 
 [type=verification]
 Were you able to access the Product Page using the API Gateway endpoint?
@@ -145,11 +169,12 @@ You can now proceed to link:{next-lab-url}[Lab 2].
 [id="further-reading"]
 == Notes and Further Reading
 
-* API Designer
+* 3scale API Configuration
 ** https://access.redhat.com/documentation/en-us/red_hat_integration/2020-q2/html/getting_started_with_apis_in_red_hat_integration/index[API Designer]
 * Apicurio
  ** https://www.apicur.io[Webpage]
  ** https://www.apicur.io/roadmap/[Roadmap]
-* OpenAPI
+* OpenShift Service Mesh
  ** https://www.openapis.org/[OpenAPI Initiative]
  ** https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md[OpenAPI Specification 3.0.2]
+* BookInfo Istio Example
