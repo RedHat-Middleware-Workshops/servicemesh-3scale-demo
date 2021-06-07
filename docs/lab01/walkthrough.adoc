@@ -1,0 +1,206 @@
+:walkthrough: Run 3scale API Management and Service Mesh Demo
+:user-password: openshift
+:3scale-admin: https://3scale-admin.{openshift-app-host}
+:ossm-kiali: https://kiali-istio-system.{openshift-app-host}
+:ossm-jaeger: https://jaeger-istio-system.{openshift-app-host}
+:istio-ingress: http://istio-ingressgateway-istio-system.{openshift-app-host}
+:bookinfo-api: https://bookinfo-api-product-3scale-apicast-staging.{openshift-app-host}
+
+[id='api-mesh']
+= OpenShift Service Mesh and 3scale API Management Integration
+
+This lab provides instructions for running the OpenShift Service Mesh and 3scale API Management Integration demo.
+
+Audience: API Owner, Product Manager, Developers, Architects
+
+*Overview*
+
+
+
+In a Micro Services Architecture (MSA), there are different stakeholders for API Management and Service Mesh capabilities. Service Mesh provides observability, traceability, security and control to application develops and dev-ops engineers to monitor intra-service communications.
+
+API management provides API providers and business owners ability to provide business API capabilities like security, rate limiting, billing and developer ecosystem.
+
+This link:https://www.redhat.com/rhdc/managed-files/cl-service-mesh-and-api-management-e-book-f28474-202104-en.pdf[eBook, window="_blank"] from Red Hat is a good foundation for understanding the interplay between Service Mesh and API Management in a MSA.
+
+The *3scale API Management* engineering team, in collaboration with the *Red Hat® OpenShift® Service Mesh* team, have created a service mesh Mixer adapter for API management called *3scale Istio adapter*. This adapter allows 3scale API Management policies to be applied directly to communication that occurs between services in the service mesh.
+
+.3scale Service Mesh Mixer Adapter
+image::images/3scale-ossm-adapter.png[3scale-ossm-adapter, role="integr8ly-img-responsive"]
+
+*Demo Assets*
+
+You are provided the following environment on *OpenShift Container Platform 4.7* with the following namespaces and installations:
+
+. *istio-system*: A _Service Mesh Control Plane_ with Istio, Kiali and Jaeger pre-configured. _Service Mesh Member Roll_ with the _bookinfo_ namespace added.
+. *bookinfo*: A sample microservice architecture application.
+. *threescale*: 3scale API Management platform with a 3scale tenant pre-configured with the 2 API services: _BookInfo API Product_ and _Bookinfo Istio Product_.
+. *sso*: A Red Hat Single Sign On instance with a 3scale realm and client configured to help with OIDC (Open ID Connect) setup.
+
+*Credentials:*
+
+Your username is: `{user-username}` +
+Your password is: `{user-password}`
+
+[type=walkthroughResource]
+.3scale API Management
+****
+* link:{3scale-admin}[3scale Admin Console, window="_blank"]
+****
+
+[time=2]
+[id="test-bookinfo-microservices-app"]
+== Access BookInfo Application with istio Ingress
+
+The BookInfo Application is deployed to *bookinfo* namespace. The service mesh is configured with a Service Mesh Member Roll for the *bookinfo* namespace so that Service Mesh control plane in this namespace can control the microservices deployed to the *bookinfo* namespace.
+
+.BookInfo Istio Ingress with Service Mesh
+image::images/bookinfo_servicemesh_config.png[bookinfo_servicemesh_config, role="integr8ly-img-responsive"]
+
+
+Follow the below steps to verify your *BookInfo* application is working:
+
+
+. Open a browser window and navigate to:
++
+[source,bash,subs="attributes+"]
+----
+ https://reqbin.com/curl
+----
+
+. Copy and paste the following URL. 
++
+[source,bash,subs="attributes+"]
+----
+curl {istio-ingress}/api/v1/products
+----
+
+. Click the *Run* button.
+
+. The page will load the response information from the service. You will be able to see the _RESPONSE HEADERS_ and the actual _RESPONSE_BODY_. You should expect a _*_HTTP 200_ response and the response JSON as follows:
++
+image::images/online-curl-response.png[online-curl-response, role="integr8ly-img-responsive"]
+
+. Repeat the above request 10 times to generate traffic.
+
+. Open the {ossm-kiali} and login using the credentials below:
+.. *username*: `{user-username}`
+.. *password*: `{user-password}`
+
+. Observe the traffic on Kiali.
+
+. Click on *Distributed Tracing* to open Jaeger console and view the distributed tracing of the service request from Ingress to the different microservices.
+
+[type=verification]
+Were you able to access the Product Page using the Istio Ingress endpoint?
+
+[type=verificationFail]
+Verify the productpage pod isrunning, and the istio-ingress pod in istio-system namespace is running.
+
+[time=2]
+[id="manage-bookinfo-api-using-3scale"]
+== Manage BookInfo API through 3scale API Gateway
+
+In this section, we use the Istio Ingress to the BookInfo application as a backend and configure the API Product in 3scale.
+
+.BookInfo API Gateway using Istio Ingress with Service Mesh as Backend
+image::images/bookinfo_sm_api.png[bookinfo_sm_api, role="integr8ly-img-responsive"]
+
+With this configuration, the API Developers and Developer Apps send API request to the gateway URL provided by the 3scale APIcast Gateway, deployed separately. This in turn will validate the API user and redirect the call to the backend (Istio Ingress). Thus, each request flows through 2 gateways (APIcast and Istio Ingress) before it reaches the ProductPage service.
+
+
+Follow the below steps to verify your *BookInfo* application is working:
+
+
+. Open a browser window and navigate to:
++
+[source,bash,subs="attributes+"]
+----
+ https://reqbin.com/curl
+----
+
+. Copy and paste the following URL. 
++
+[source,bash,subs="attributes+"]
+----
+curl {bookinfo-api}/api/v1/products
+----
+
+. Click the *Run* button.
+
+. Notice that the request is not authorized due to missing parameters. As the API is protected through 3scale API Gateway, a user key needs to be passed to authnticate the request.
+
+. Try the request again with the following URL. 
++
+[source,bash,subs="attributes+"]
+----
+curl {bookinfo-api}/api/v1/products?user_key=3scaleapisecret
+----
+
+
+. The page will load the response information from the service. You will be able to see the _RESPONSE HEADERS_ and the actual _RESPONSE_BODY_. You should expect a _*_HTTP 200_ response and the response JSON as follows:
++
+image::images/online-curl-response.png[online-curl-response, role="integr8ly-img-responsive"]
+
+
+
+[type=verification]
+Were you able to access the Product API using the API Gateway endpoint?
+
+[type=verificationFail]
+Verify that the productpage pod is running, and the APIcast pod in threescale namespace is running.
+
+[time=2]
+[id="manage-bookinfo-istio-using-3scale"]
+== Manage BookInfo API through 3scale Istio Adapter
+
+In this section, we use the Istio Ingress to the BookInfo application directly as an API Product in 3scale, using the 3scale Istio adapter.
+
+.BookInfo API  using Istio Ingress with Service Mesh and 3scale Istio Adapter
+image::images/bookinfo_sm_api_adapter.png[bookinfo_sm_api, role="integr8ly-img-responsive"]
+
+
+With this configuration, the API Developers and Developer Apps send API request to the Istio Ingress. The request is validated by Service Mesh using Istio Mixer configuration, and the 3scale validation is possible through the 3scale Istio Mixer Adapter. Thus, each request flows through to the Istio Ingress directly, avoiding having a separate APIcast gateway.
+
+
+Follow the below steps to configure your *ProductPage* deployment in *BookInfo* for using 3scale adapter:
+
+. 
+
+[type=verification]
+Were you able to access the Product API using the Istio Ingress endpoint and 3scale User Authentication?
+
+[type=verificationFail]
+Verify that the 3scale-adapter pod is running, productpage deployment has the annotations added, and the rule, handler and isntance are all created successfully in the istio-system namespace.
+
+
+_Congratulations!_ You have created your first API definition based on the OpenAPI Specification  using Red Hat's API Designer. Don't lose track of the file, you will use this definition for your next lab.
+
+[time=1]
+[id="step-beyond"]
+== Steps Beyond
+
+You can use this framework to expand and connect with any microservices application running on OpenShift, and managed using Service Mesh. Get started with your own spring-boot or node-js application, add the link:https://access.redhat.com/documentation/en-us/openshift_container_platform/4.7/html/service_mesh/service-mesh-1-x#deploying-applications-ossm-v1x[service mesh configuration, window="_blank"] and then configure 3scale API management using link:https://access.redhat.com/documentation/en-us/openshift_container_platform/4.7/html/service_mesh/service-mesh-1-x#threescale-adapter-v1x[istio adapter, window="_blank"].
+
+[time=1]
+[id="summary"]
+== Summary
+
+This demo showcased a simple Integration of OpenShift Service Mesh and 3scale API Management. Check out the Notes and References to understand how to set up the example manaully, and extend the example with Mutual TLS, Open ID Connect (OIDC) and rate-limiting using application plans.
+
+
+[time=5]
+[id="further-reading"]
+== Notes and Further Reading
+
+
+* OpenShift Service Mesh
+ ** https://access.redhat.com/documentation/en-us/openshift_container_platform/4.7/html/service_mesh/index[OpenShift Service Mesh]
+ ** https://access.redhat.com/documentation/en-us/openshift_container_platform/4.7/html/service_mesh/service-mesh-2-x#ossm-architecture_ossm-architecture[Service Mesh Architecture]
+ ** https://access.redhat.com/documentation/en-us/openshift_container_platform/4.7/html/service_mesh/service-mesh-2-x#understanding-kiali[Understanding Kiali]
+* BookInfo Istio Example
+  ** https://istio.io/latest/docs/examples/bookinfo/[BookInfo Application]
+  ** https://access.redhat.com/documentation/en-us/openshift_container_platform/4.7/html/service_mesh/service-mesh-2-x#ossm-tutorial-bookinfo-overview_deploying-applications-ossm[BookInfo on Service Mesh]
+* 3scale API Management
+  ** https://access.redhat.com/documentation/en-us/openshift_container_platform/4.7/html/service_mesh/service-mesh-2-x#threescale-adapter[3scale Istio Adapter]
+  ** https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.10/html/administering_the_api_gateway/index[3scale API Gateway]
