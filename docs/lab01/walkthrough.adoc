@@ -48,7 +48,10 @@ Your password is: `{user-password}`
 .3scale API Management
 ****
 * link:{3scale-admin}[3scale Admin Console, window="_blank"]
-* link:[Apicurio Studio, window="_blank"]
+* link:{sso-url}[Red Hat SSO Console, window="_blank"]
+* link:{ossm-kiali}[Kiali Console, window="_blank"]
+* link:{openshift-url}[Kiali Console, window="_blank"]
+
 ****
 
 [time=2]
@@ -339,16 +342,14 @@ Now that you have the 3scale Istio Integration in place, you can try out the fol
 . Set a rate limit to the *BookInfo Istio Basic Plan* to 2 hits/min and try to check if rate limiting is applied correctly.
 
 . There is an SSO installed in this cluster. You can follow the below steps to secure the Istio Ingress with OIDC:
-.. Login to link:sso-url[Single Sign On Console, window="_blank"] with following credentials:
+.. Login to link:{sso-url}[Single Sign On Console, window="_blank"] with following credentials:
 ... *username*: `{user-username}`
 ... *password*: `{user-password}`
-.. Click on *Clients* and select *3scale-admin*.
-.. Select *Service Account Roles*.
-.. In *Client Roles*, type *realm-management*, select this from the dropdown, and add all available roles to *Assigned Roles*.
-+
-image::images/sso-3scale-client-sa-roles.png[sso-3scale-client-sa-roles, role="integr8ly-img-responsive"]
 
-.. Open the 3scale Admin console and login.
+.. Click on *Clients* and select *3scale-admin*.
+.. Note the *Credentials* secret. For this lab, this is set to `clientsecret`.
+
+.. Open the link:{3scale-admin}[3scale Admin console, window="_blank"]  and login.
 .. Select the *BookInfo Product (Istio Adapter)* and click on *Integration* and *Settings*.
 .. Change the Deployment to *Istio*.
 .. Change the Security to OIDC.
@@ -365,6 +366,9 @@ https://3scale-admin:clientsecret@keycloak-sso.{openshift-app-host}/auth/realms/
 .. Click on *Applications* and *Listing*.
 .. Select *BookInfo Istio Basic App*.
 .. Notice the API Credentials changed to client id/secret. Click on *Add Random Key* to create a client secret.
++
+NOTE: You may need to refresh the page couple of times to check the client id/secret and generated correctly.
+
 .. Add the redirect URL below to enable testing with Postman:
 +
 [source,bash,subs="attributes+"]
@@ -373,7 +377,15 @@ https://www.getpostman.com/oauth2/callback
 ----
 
 .. Confirm that the new client id generated in 3scale is available in SSO console.
-.. Now test the API endpoint using PostMan by requesting the URL with Authorization configured as OIDC:
+
+.. Set up a new request in *PostMan* for `productpage` endpoint:
++
+[source,bash,subs="attributes+"]
+----
+curl {istio-ingress}/productpage?user_key=3scaleistiosecret
+----
+
+.. Now configure PostMan for Authorization configured as OIDC:
 ... *Grant Type:* `Authorization Code`
 ... *Auth URL:* `https://keycloak-sso.{openshift-app-host}/auth/admin/threescale-realm/protocol/openid-connect/auth`
 ... *Callback URL:* `https://www.getpostman.com/oauth2/callback`
