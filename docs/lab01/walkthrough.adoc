@@ -382,14 +382,14 @@ https://www.getpostman.com/oauth2/callback
 +
 [source,bash,subs="attributes+"]
 ----
-curl {istio-ingress}/productpage?user_key=3scaleistiosecret
+curl {istio-ingress}/productpage
 ----
 
 .. Now configure PostMan for Authorization configured as OIDC:
 ... *Grant Type:* `Authorization Code`
-... *Auth URL:* `https://keycloak-sso.{openshift-app-host}/auth/admin/threescale-realm/protocol/openid-connect/auth`
+... *Auth URL:* `https://keycloak-sso.{openshift-app-host}/auth/realms/threescale-realm/protocol/openid-connect/auth`
 ... *Callback URL:* `https://www.getpostman.com/oauth2/callback`
-... *Access Token URL:* `https://keycloak-sso.{openshift-app-host}/auth/admin/threescale-realm/protocol/openid-connect/token`
+... *Access Token URL:* `https://keycloak-sso.{openshift-app-host}/auth/realms/threescale-realm/protocol/openid-connect/token`
 ... *Client ID:* _From 3scale BookInfo Istio Basic App_
 ... *Client Secret:* _From 3scale BookInfo Istio Basic App_
 ... *Client Authentication:* _Send as basic header_
