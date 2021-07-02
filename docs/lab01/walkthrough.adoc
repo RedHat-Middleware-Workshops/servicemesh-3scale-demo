@@ -378,11 +378,11 @@ https://www.getpostman.com/oauth2/callback
 
 .. Confirm that the new client id generated in 3scale is available in SSO console.
 
-.. Set up a new request in *PostMan* for `productpage` endpoint:
+.. Set up a new `GET` request in *PostMan* for `productpage` endpoint:
 +
 [source,bash,subs="attributes+"]
 ----
-curl {istio-ingress}/productpage
+{istio-ingress}/productpage
 ----
 
 .. Now configure PostMan for Authorization configured as OIDC:
