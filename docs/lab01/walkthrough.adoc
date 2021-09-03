@@ -6,7 +6,7 @@
 :istio-ingress: http://istio-ingressgateway-istio-system.{openshift-app-host}
 :bookinfo-api: https://bookinfo-api-product-3scale-apicast-staging.{openshift-app-host}
 :openshift-url: {openshift-host}/console
-:sso-url: https://keycloak-sso.{openshift-app-host}/auth/admin/threescale-realm/console
+:sso-url: https://secure-rhsso-sso.{openshift-app-host}/auth/admin/threescale-realm/console
 
 [id='api-mesh']
 = OpenShift Service Mesh and 3scale API Management Integration
@@ -50,7 +50,7 @@ Your password is: `{user-password}`
 * link:{3scale-admin}[3scale Admin Console, window="_blank"]
 * link:{sso-url}[Red Hat SSO Console, window="_blank"]
 * link:{ossm-kiali}[Kiali Console, window="_blank"]
-* link:{openshift-url}[Kiali Console, window="_blank"]
+* link:{openshift-url}[OpenShift Console, window="_blank"]
 
 ****
 
@@ -259,7 +259,32 @@ oc patch -n "${BOOKINFO_NS}"  deployment productpage-v1 --patch ''"${patch}"''
 ----
 
 . Wait until a new deployment of *productpage-v1* is rolled out.
++
+[source,bash,subs="attributes+"]
+----
+oc pods -w -n "${BOOKINFO_NS}"  
+----
 
+. When the pods for *productpage-v1* are restarted, press *Ctrl+C* to exit watching the pods.
+
+. Check the description of the *productpage* deployment to ensure the labels for service-mesh 3scale are added.
++
+[source,bash,subs="attributes+"]
+----
+oc describe deployment productpage -n "${BOOKINFO_NS}"  
+----
+
+.Sample Output
+----
+...
+Pod Template:
+  Labels:           app=productpage
+                    service-mesh.3scale.net/credentials=threescale
+                    service-mesh.3scale.net/service-id=4
+                    version=v1
+  Annotations:      sidecar.istio.io/inject: true
+  ...
+----
 
 [type=verification]
 Were you able to access the Terminal and apply the changes to the deployment?
@@ -312,7 +337,7 @@ curl {istio-ingress}/productpage?user_key=3scaleistiosecret
 .. *username*: `{user-username}`
 .. *password*: `{user-password}`
 
-. Select the *BookInfo Product (Istio)* product.
+. Select the *BookInfo Product (Istio Adapter)* product.
 
 . Click on *Analytics* and select *Traffic*.
 +
@@ -357,8 +382,14 @@ Now that you have the 3scale Istio Integration in place, you can try out the fol
 +
 [source,bash,subs="attributes+"]
 ----
-https://3scale-admin:clientsecret@keycloak-sso.{openshift-app-host}/auth/realms/threescale-realm
+https://3scale-admin:clientsecret@secure-rhsso-sso.{openshift-app-host}/auth/realms/threescale-realm
 ----
+
+.. Select the following OIDC Authorization Flows:
+... _Authorization Code Flow_
+... _Direct Access Grant Flow_
++
+NOTE: *Direct Access Grant Flow* enables us to login and pass the OIDC Token to 3scale without having to use PostMan or Browser to follow a redirect to SSO login with *Authorization Code Flow*.
 
 .. Scroll down, click on *Update Product*.
 .. Select *Configuration* and click on *Update Configuration*.
@@ -378,6 +409,56 @@ https://www.getpostman.com/oauth2/callback
 
 .. Confirm that the new client id generated in 3scale is available in SSO console.
 
+[type=verification]
+Were you able to see the new client appear in the SSO clients list?
+
+[type=verificationFail]
+Verify that the SSO configuration for Service Account Roles are set up correctly, and try refreshing client secret in 3scale to trigger re-sync with SSO.
+
+Now configure the 3scale Istio Instance to use authentication parameters with OIDC.
+
+. Navigate to the OpenShift console tab.
+. The *Terminal* should be open from the previous lab. If not, restart the terminal by clicking on the Terminal link.
+. In the terminal, enter the following:
++
+[source,bash,subs="attributes+"]
+----
+oc edit instance threescale -n istio-system -o yaml
+----
+
+. Notice that the instance object is opened in edit mode in a *vim* editor.
+
+. The current configuration should be as follows:
++
+[source,bash,subs="attributes+"]
+----
+...
+    subject:
+      properties:
+        app_id: request.query_params["app_id"] | request.headers["app-id"] | ""
+
+""      app_key: request.query_params["app_key"] | request.headers["app-key"] |  
+        client_id: request.auth.claims["azp"] | ""
+
+"     user: request.query_params["user_key"] | request.headers["x-user-key"] | ""
+...
+
+----
+
+. Replace the section beginning with *subject* with the following:
++
+[source,bash,subs="attributes+"]
+----
+    subject:
+      app_key: 'request.query_params["app_key"] | request.headers["app-key"] | ""'
+      client_id: 'request.auth.claims["azp"] | ""'
+      properties:
+        user: 'request.query_params["user_key"] | request.headers["x-user-key"] | ""'
+----
+
+. Save the changes by typing *Escape* and then *:wq*. If there are no typos or YAML errors, you should exit the editor. Otherwise, fix the YAML errors and try again.
+
+. If you have *PostMan* installed, you can use this to test the _Authorization Code Flow_. 
 .. Set up a new `GET` request in *PostMan* for `productpage` endpoint:
 +
 [source,bash,subs="attributes+"]
