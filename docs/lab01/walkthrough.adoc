@@ -25,10 +25,10 @@ API management provides API providers and business owners ability to provide bus
 
 This link:https://www.redhat.com/rhdc/managed-files/cl-service-mesh-and-api-management-e-book-f28474-202104-en.pdf[eBook, window="_blank"] from Red Hat is a good foundation for understanding the interplay between Service Mesh and API Management in a MSA.
 
-The *3scale API Management* engineering team, in collaboration with the *Red Hat® OpenShift® Service Mesh* team, have created a service mesh Mixer adapter for API management called *3scale Istio adapter*. This adapter allows 3scale API Management policies to be applied directly to communication that occurs between services in the service mesh.
+The *3scale API Management* engineering team, in collaboration with the *Red Hat® OpenShift® Service Mesh* team, have created a service mesh Web Assembly Module for API management. This allows 3scale API Management policies to be applied directly to communication that occurs between services in the service mesh.
 
-.3scale Service Mesh Mixer Adapter
-image::images/3scale-ossm-adapter.png[3scale-ossm-adapter, role="integr8ly-img-responsive"]
+.3scale Service Mesh Web Assemble Module
+image::images/3scale-SM-intro.png[3scale-SM-intro, role="integr8ly-img-responsive"]
 
 *Demo Assets*
 
@@ -202,11 +202,11 @@ Verify that the productpage pod is running, and the APIcast pod in threescale na
 
 [time=5]
 [id="manage-bookinfo-istio-using-3scale"]
-== Manage BookInfo API through 3scale Istio Adapter
+== Manage BookInfo API through 3scale Web Assembly Module
 
 In this section, we use the Istio Ingress to the BookInfo application directly as an API Product in 3scale, using the 3scale Web Assembly Module (WASM).
 
-.BookInfo API  using Istio Ingress with Service Mesh and 3scale Istio Adapter
+.BookInfo API  using Istio Ingress with Service Mesh and 3scale WASM
 image::images/bookinfo_wasm.png[bookinfo_wasm, role="integr8ly-img-responsive"]
 
 
