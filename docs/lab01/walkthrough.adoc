@@ -245,11 +245,9 @@ This sets up the service entries for access from within Service Mesh to 3scale f
 
 . Expect the following output:
 +
-[source,bash,subs="attributes+"]
-----
-serviceentry.networking.istio.io/system-entry created
-serviceentry.networking.istio.io/backend-entry created
-----
+`serviceentry.networking.istio.io/system-entry created`
++
+`serviceentry.networking.istio.io/backend-entry created`
 
 . The ServiceMeshExtension custom resource spec provides the configuration such as API methods,paths,service ID etc that the Proxy-WASM module reads from. Follow the below steps to configure the  ServiceMeshExtension
 
