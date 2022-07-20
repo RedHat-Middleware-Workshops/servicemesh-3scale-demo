@@ -473,7 +473,7 @@ Now that you have the 3scale Istio Integration in place, you can try out the fol
 +
 [source,bash,subs="attributes+"]
 ----
-https://3scale-admin:clientsecret@secure-rhsso-sso.{openshift-app-host}/auth/realms/threescale-realm
+https://3scale-admin:clientsecret@keycloak-sso.{openshift-app-host}/auth/realms/threescale-realm
 ----
 
 .. Select the following OIDC Authorization Flows:
