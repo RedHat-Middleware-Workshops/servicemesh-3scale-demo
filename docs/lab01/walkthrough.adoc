@@ -284,26 +284,7 @@ The service token will enable the permission for service mesh to be able to acce
 +
 image::images/service-id.png[service-id, role="integr8ly-img-responsive"]
 
-. Open the link:{https://onlineyamltools.com/edit-yaml}[online yaml editor, window="_blank"]
-
-. Navigate back to the terminal on the OpenShift Console UI. If the terminal has stopped restart it. 
-+
-image::images/ocp-terminal-console.png[ocp-terminal-console, role="integr8ly-img-responsive"]
-+
-[NOTE]
-===============================
-If prompted again while starting the terminal:  Select the project *user1-serviceme-xxxx* and click on Start. 
-===============================
-
-
-. Create a Custom Resource Definition file for the Service Mesh Extension with name ServiceMeshExtension_bookinfo.yaml
-+
-[source,bash,subs="attributes+"]
-----
-vim ServiceMeshExtension_bookinfo.yaml
-----
-
-. Press the 'i' key to activate the insert mode in the file. Copy paste the below yaml into the file and replace the *access token, service token, product id* values as shown in the image below and save it.
+. Copy the below yaml code
 +
 [source,yaml,subs="attributes+"]
 ----
@@ -322,7 +303,7 @@ spec:
    api: v1
    system:
      name: system
-     token: {replace with admin access token obtained from OpenShift Console UI}
+     token: VDG2U6c9kXwdetUH
      upstream:
        name: >-
          outbound|3000||system-provider.threescale.svc.cluster.local
@@ -338,8 +319,8 @@ spec:
        timeout: 5000
        url: 'http://backend-listener.threescale.svc.cluster.local'
    services:
-     - id: {replace with the Product ID obtained from 3scale admin portal}
-       token: {replace with Service Token obtained from 3scale admin portal}
+     - id: '4'
+       token: cf939c57f946bb3c809508caabeac45db51782f1c671e4a2dd2dad57d29ba394
        authorities:
          - '*'
        credentials:
@@ -371,8 +352,53 @@ spec:
              - delta: 1
                name: hits
 ----
+
+. Open the link:https://onlineyamltools.com/edit-yaml[online yaml editor, window="_blank"]
+
+. Paste the above copied yaml into the editor as shown below
++
+image::images/yaml-online.png[yaml-online, role="integr8ly-img-responsive"]
+
+. On line *16* replace the existing token value with the *Access token* obtained from Openshift Console UI earlier
++
+image::images/yaml-online-access-token.png[yaml-online-access-token, role="integr8ly-img-responsive"]
+
+. On line *32* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
++
+[NOTE]
+===============================
+Most probably you don't have to change this value as we set the value of the Product ID to 4 while setting up this demo. However it's always good to double check. 
+===============================
++
+image::images/yaml-online-Pid.png[yaml-online-Pid, role="integr8ly-img-responsive"]
+
+. On line *33* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
++
+image::images/yaml-online-service-token.png[yaml-online-service-token, role="integr8ly-img-responsive"]
+
+. Double check all the values have been modified
 +
 image::images/SME-edits.png[SME-edits, role="integr8ly-img-responsive"]
+
+
+. Navigate back to the terminal on the OpenShift Console UI. If the terminal has stopped restart it. 
++
+image::images/ocp-terminal-console.png[ocp-terminal-console, role="integr8ly-img-responsive"]
++
+[NOTE]
+===============================
+If prompted again while starting the terminal:  Select the project *user1-serviceme-xxxx* and click on Start. 
+===============================
+
+
+. Create a Custom Resource Definition file for the Service Mesh Extension with name ServiceMeshExtension_bookinfo.yaml
++
+[source,bash,subs="attributes+"]
+----
+vim ServiceMeshExtension_bookinfo.yaml
+----
+
+. Copy & paste the modified yaml into this file
 
 . Save the file by hitting the 'esc' button followed by :wq and hit enter
 
@@ -403,7 +429,7 @@ curl {istio-ingress}/api/v1/products
 +
 [source,bash,subs="attributes+"]
 ----
-PERMISSION_DENIED:threescale.handler.istio-system:no auth credentials provided or provided in invalid location
+Access Forbidden
 ----
 
 . Now try the request with the API Key for the *BookInfo Product (Istio)* application:
@@ -434,10 +460,7 @@ curl {istio-ingress}/productpage?user_key=3scaleistiosecret
 +
 image::images/3scale-istio-product-traffic.png[3scale-istio-product-traffic, role="integr8ly-img-responsive"]
 
-. Also check *Kiali* and *Jaeger* consoles and confirm the traffic is coming to the microservices through the API Gateway.
-. In *Jaeger*, observe that the *threescale adapter* is used for enforcing 3scale security and rate limits in the Istio Ingress.
-+
-image::images/jaeger-istio-3scale-mixer.png[jaeger-istio-3scale-mixer, role="integr8ly-img-responsive"]
+. Also check *Kiali* and *Jaeger* consoles to visualize the flow of calls.
 
 
 _Congratulations!_ You have completed the demo for Integration of Service Mesh and Istio. 
@@ -453,11 +476,38 @@ Verify that the productpage pod is running, and an instance of the ServiceMeshEx
 [id="ratelimits-oidc"]
 == Rate Limiting and OIDC with Istio Adapter
 
-This is an optional section and shows the interplay between 3scale, servicemesh and Red Hat SSO. 
+*This is an optional section and shows the interplay between 3scale, servicemesh and Red Hat SSO.* 
 
 Now that you have the 3scale Istio Integration in place, you can try out the following additional options:
 
-. Set a rate limit to the *BookInfo Istio Basic Plan* to 2 hits/min and try to check if rate limiting is applied correctly.
+*Set a rate limit to the *BookInfo Istio Basic Plan* to 3 hits/min and try to check if rate limiting is applied correctly*.
+. Open the link:{3scale-admin}[3scale Admin console, window="_blank"]  and login
+
+. Navigate to *BookInfo Product (Istio Adapter)* product > Applications > Application Plans anc click on *BookInfo Istio Basic Plan*
++
+image::images/3scale-app-plan-nav.png[3scale-app-plan-nav, role="integr8ly-img-responsive"]
+
+. Scroll down to the *Metrics, Methods, Limits & Pricing Rules* section and clik on Limits
++
+image::images/3scale-limit-nav.png[3scale-limit-nav, role="integr8ly-img-responsive"]
+
+. Click on *New usage limit* and select *minute* for *Period* and enter *3* for *Max.value*. Create the usage limit
++
+image::images/usage-limit.png[usage-limit, role="integr8ly-img-responsive"]
+
+. Scroll back up and click on *Update Application plan*
++
+image::images/update-app-plan.png[update-app-plan, role="integr8ly-img-responsive"]
+
+. Try making more than 3 request within a minute to the product endpoint:
++
+[source,bash,subs="attributes+"]
+----
+curl {istio-ingress}/productpage?user_key=3scaleistiosecret
+----
+
+*You should see an Access Forbidden message after you've crossed the limit*
+
 
 . There is an SSO installed in this cluster. You can follow the below steps to secure the Istio Ingress with OIDC:
 .. Login to link:{sso-url}[Single Sign On Console, window="_blank"] with following credentials:
