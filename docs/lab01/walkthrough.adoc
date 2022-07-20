@@ -648,24 +648,7 @@ The service token will enable the permission for service mesh to be able to acce
 +
 image::images/service-id.png[service-id, role="integr8ly-img-responsive"]
 
-. Navigate back to the terminal on the OpenShift Console UI. If the terminal has stopped restart it. 
-+
-image::images/ocp-terminal-console.png[ocp-terminal-console, role="integr8ly-img-responsive"]
-+
-[NOTE]
-===============================
-If prompted again while starting the terminal:  Select the project *user1-serviceme-xxxx* and click on Start. 
-===============================
-
-
-. Create a Custom Resource Definition file for the Service Mesh Extension with name ServiceMeshExtension_bookinfo-oidc.yaml
-+
-[source,bash,subs="attributes+"]
-----
-vim ServiceMeshExtension_bookinfo-oidc.yaml
-----
-
-. Press the 'i' key to activate the insert mode in the file. Copy paste the below yaml into the file and replace the *access token, service token, product id* values as shown in the image below and save it.
+. Copy the below yaml code
 +
 [source,yaml,subs="attributes+"]
 ----
@@ -685,7 +668,7 @@ spec:
    api: v1
    system:
      name: system
-     token: <replace with 3scale admin access token>
+     token: VDG2U6c9kXwdetUH
      upstream:
        name: >-
          outbound|3000||system-provider.threescale.svc.cluster.local
@@ -702,7 +685,7 @@ spec:
        url: 'http://backend-listener.threescale.svc.cluster.local'
    services:
     - id: '4'
-      token: <replace with 3scale product service token>
+      token: cf939c57f946bb3c809508caabeac45db51782f1c671e4a2dd2dad57d29ba394
       authorities:
         - '*'
       credentials:
@@ -723,8 +706,59 @@ spec:
             - delta: 1
               name: hits
 ----
+
+. Open the link:https://onlineyamltools.com/edit-yaml[online yaml editor, window="_blank"]
+
+. Paste the above copied yaml into the editor as shown below
++
+image::images/yaml-online-oidc.png[yaml-online-oidc, role="integr8ly-img-responsive"]
+
+. Paste the above copied yaml into the editor as shown below
++
+image::images/yaml-online-oidc.png[yaml-online-oidc, role="integr8ly-img-responsive"]
+
+. On line *17* replace the existing token value with the *Access token* obtained from Openshift Console UI earlier
++
+image::images/yaml-online-access-token-oidc.png[yaml-online-access-token-oidc, role="integr8ly-img-responsive"]
+
+. On line *33* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
++
+[NOTE]
+===============================
+Most probably you don't have to change this value as we set the value of the Product ID to 4 while setting up this demo. However it's always good to double check. 
+===============================
++
+image::images/yaml-online-Pid-oidc.png[yaml-online-Pid-oidc, role="integr8ly-img-responsive"]
+
+. On line *34* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
++
+image::images/yaml-online-service-token-oidc.png[yaml-online-service-token-oidc, role="integr8ly-img-responsive"]
+
+. Double check all the values have been modified
 +
 image::images/SME-OIDC-EDIT.png[SME-OIDC-EDIT.png, role="integr8ly-img-responsive"]
+
+
+. Navigate back to the terminal on the OpenShift Console UI. If the terminal has stopped restart it. 
++
+image::images/ocp-terminal-console.png[ocp-terminal-console, role="integr8ly-img-responsive"]
++
+[NOTE]
+===============================
+If prompted again while starting the terminal:  Select the project *user1-serviceme-xxxx* and click on Start. 
+===============================
+
+
+. Create a Custom Resource Definition file for the Service Mesh Extension with name ServiceMeshExtension_bookinfo-oidc.yaml
++
+[source,bash,subs="attributes+"]
+----
+vim ServiceMeshExtension_bookinfo-oidc.yaml
+----
+
+. Copy & paste the modified yaml into this file
+
+. Save the file by hitting the 'esc' button followed by :wq and hit enter
 
 . Please delete the ServiceMeshExtension created earlier
 +
