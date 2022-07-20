@@ -301,7 +301,7 @@ If prompted again while starting the terminal:  Select the project *user1-servic
 vim ServiceMeshExtension_bookinfo.yaml
 ----
 
-. Press the 'i' key to activate the insert mode in the file. Copy paste the below yaml into the file and replace the access token, service token, product id* values as shown in the image below and save it.
+. Press the 'i' key to activate the insert mode in the file. Copy paste the below yaml into the file and replace the *access token, service token, product id* values as shown in the image below and save it.
 +
 [source,yaml,subs="attributes+"]
 ----
