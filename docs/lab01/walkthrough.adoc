@@ -284,6 +284,8 @@ The service token will enable the permission for service mesh to be able to acce
 +
 image::images/service-id.png[service-id, role="integr8ly-img-responsive"]
 
+. Open the link:{https://onlineyamltools.com/edit-yaml}[online yaml editor, window="_blank"]
+
 . Navigate back to the terminal on the OpenShift Console UI. If the terminal has stopped restart it. 
 +
 image::images/ocp-terminal-console.png[ocp-terminal-console, role="integr8ly-img-responsive"]
