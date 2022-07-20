@@ -474,7 +474,7 @@ Verify that the productpage pod is running, and an instance of the ServiceMeshEx
 
 [time=10]
 [id="ratelimits-oidc"]
-== Rate Limiting and OIDC with Istio Adapter
+== Rate Limiting and OIDC with SSO
 
 *This is an optional section and shows the interplay between 3scale, servicemesh and Red Hat SSO.* 
 
@@ -508,6 +508,7 @@ curl {istio-ingress}/productpage?user_key=3scaleistiosecret
 
 *You should see an Access Forbidden message after you've crossed the limit*
 
+=== OIDC with SSO
 
 . There is an SSO installed in this cluster. You can follow the below steps to secure the Istio Ingress with OIDC:
 .. Login to link:{sso-url}[Single Sign On Console, window="_blank"] with following credentials:
