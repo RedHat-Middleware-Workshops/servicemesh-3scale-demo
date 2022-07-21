@@ -556,7 +556,11 @@ https://oauth.pstmn.io/v1/callback
 +
 image::images/sso-sync.png[sso-sync, role="integr8ly-img-responsive"]
 
+[type=verification]
+Were you able to see the new client appear in the SSO clients list?
 
+[type=verificationFail]
+Verify that the SSO configuration for Service Account Roles are set up correctly, and try refreshing client secret in 3scale to trigger re-sync with SSO.
 
 
 Now configure the 3scale WASM to use authentication parameters with OIDC. Lets start by creating a *Request Authentication* . Request authentication when applied to OSSM will validate the JWT token and store the contents in an internal metadata object which will be used by the 3scale WASM module to validate against 3scale.
@@ -769,12 +773,6 @@ oc apply -f ServiceMeshExtension_bookinfo-oidc.yaml -n bookinfo
 ----
 
 . You can now verify the policy enforcement by first calling the endpoint without credentials and then later using the api key.
-
-[type=verification]
-Were you able to see the new client appear in the SSO clients list?
-
-[type=verificationFail]
-Verify that the SSO configuration for Service Account Roles are set up correctly, and try refreshing client secret in 3scale to trigger re-sync with SSO.
 
 . Open a browser window and navigate to:
 +
