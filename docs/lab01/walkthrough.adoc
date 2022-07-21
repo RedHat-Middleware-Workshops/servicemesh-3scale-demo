@@ -606,8 +606,14 @@ spec:
 ----
 oc apply -f RequestAuthentication_bookinfo-oidc.yaml -n bookinfo
 ----
-
++
 The ServiceMeshExtension custom resource spec provides the configuration that the Proxy-WASM module reads from. The spec is embedded in the host and read by the Proxy-WASM module. Follow the below steps to configure the ServiceMeshExtension
+
+[type=verification]
+Were you able to see the new client appear in the SSO clients list?
+
+[type=verificationFail]
+Verify that the SSO configuration for Service Account Roles are set up correctly, and try refreshing client secret in 3scale to trigger re-sync with SSO.
 
 . If you haven't already noted down the *Admin_Access_Token*, *Prodcut ID*, *Service Token*, Follow the below steps. If you have already noted them down earlier skip directly to step 2 and ignore the below  steps from a to h:
 
