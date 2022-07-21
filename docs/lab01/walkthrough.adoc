@@ -506,11 +506,9 @@ image::images/update-app-plan.png[update-app-plan, role="integr8ly-img-responsiv
 curl {istio-ingress}/productpage?user_key=3scaleistiosecret
 ----
 
-*You should see an Access Forbidden message after you've crossed the limit*
+_You should see an Access Forbidden message after you've crossed the limit_
 
-[time=1]
-[id="sso"]
-== OIDC with Red Hat SSO
+*OIDC with Red Hat SSO*
 
 . There is an SSO installed in this cluster. You can follow the below steps to secure the Istio Ingress with OIDC:
 .. Login to link:{sso-url}[Single Sign On Console, window="_blank"] with following credentials:
