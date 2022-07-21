@@ -848,13 +848,13 @@ Were you able to access the Product API using the Istio endpoint and Open ID Con
 Verify that the SSO configuration for Service Account Roles are set up correctly, and the client id for the app in 3scale is being synchronized in SSO.
 
 
-[time=1]
+[time=5]
 [id="step-beyond"]
 == Extend the Example with other Microservices
 
 You can use this framework to expand and connect with any microservices application running on OpenShift, and managed using Service Mesh. Get started with your own spring-boot or node-js application, add the link:https://access.redhat.com/documentation/en-us/openshift_container_platform/4.10/html/service_mesh/service-mesh-2-x#preparing-ossm-installation[service mesh configuration, window="_blank"] and then configure 3scale API management using link:https://access.redhat.com/documentation/en-us/openshift_container_platform/4.10/html/service_mesh/service-mesh-2-x#ossm-threescale-webassembly-module[Web Assembly Module, window="_blank"].
 
-[time=1]
+[time=5]
 [id="summary"]
 == Summary
 
