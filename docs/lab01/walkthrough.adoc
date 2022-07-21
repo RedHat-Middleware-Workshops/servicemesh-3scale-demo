@@ -713,10 +713,6 @@ spec:
 +
 image::images/yaml-online-oidc.png[yaml-online-oidc, role="integr8ly-img-responsive"]
 
-. Paste the above copied yaml into the editor as shown below
-+
-image::images/yaml-online-oidc.png[yaml-online-oidc, role="integr8ly-img-responsive"]
-
 . On line *17* replace the existing token value with the *Access token* obtained from Openshift Console UI earlier
 +
 image::images/yaml-online-access-token-oidc.png[yaml-online-access-token-oidc, role="integr8ly-img-responsive"]
