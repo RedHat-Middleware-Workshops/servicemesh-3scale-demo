@@ -792,9 +792,9 @@ curl {istio-ingress}/api/v1/products
 +
 image::images/403-oidc.png[403-oidc, role="integr8ly-img-responsive"]
 
-Postman will be used to test this flow as it has to open the browser to capture the user credentials. So, please install postman if you do not have it
+*Postman will be used to test this flow as it has to open the browser to capture the user credentials. So, please install postman if you do not have it*
 
-. You can also If you have *PostMan* installed, you can use this to test the _Authorization Code Flow_. 
+. We will leverage *Postman* to test the _Authorization Code Flow_. 
 .. Set up a new `GET` request in *PostMan* for `productpage` endpoint:
 +
 [source,bash,subs="attributes+"]
