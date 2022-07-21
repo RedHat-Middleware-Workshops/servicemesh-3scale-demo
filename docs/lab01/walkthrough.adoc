@@ -839,7 +839,7 @@ image::images/use_token.png[use_token, role="integr8ly-img-responsive"]
 +
 image::images/send_btn.png[send_btn, role="integr8ly-img-responsive"]
 
-. The request should be successful and you should get a *HTTP 200 (OK)* response.
+.. The request should be successful and you should get a *HTTP 200 (OK)* response.
 
 [type=verification]
 Were you able to access the Product API using the Istio endpoint and Open ID Connect?
