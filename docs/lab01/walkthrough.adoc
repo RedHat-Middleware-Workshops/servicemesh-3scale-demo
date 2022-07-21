@@ -768,9 +768,8 @@ oc delete sme bookinfo -n bookinfo
 oc apply -f ServiceMeshExtension_bookinfo-oidc.yaml -n bookinfo
 ----
 
-==== Verify Policy Enforcement
-
 . You can now verify the policy enforcement by first calling the endpoint without credentials and then later using the api key.
+
 [type=verification]
 Were you able to see the new client appear in the SSO clients list?
 
