@@ -508,7 +508,9 @@ curl {istio-ingress}/productpage?user_key=3scaleistiosecret
 
 *You should see an Access Forbidden message after you've crossed the limit*
 
-=== OIDC with SSO
+[time=1]
+[id="sso"]
+== OIDC with Red Hat SSO
 
 . There is an SSO installed in this cluster. You can follow the below steps to secure the Istio Ingress with OIDC:
 .. Login to link:{sso-url}[Single Sign On Console, window="_blank"] with following credentials:
