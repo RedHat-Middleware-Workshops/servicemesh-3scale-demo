@@ -249,7 +249,7 @@ This sets up the service entries for access from within Service Mesh to 3scale f
 +
 `serviceentry.networking.istio.io/backend-entry created`
 
-. The ServiceMeshExtension custom resource spec provides the configuration such as API methods,paths,service ID etc that the Proxy-WASM module reads from. Follow the below steps to configure the  ServiceMeshExtension
+. The WasmPlugin custom resource spec provides the configuration such as API methods,paths,service ID etc that the Proxy-WASM module reads from. Follow the below steps to configure the  WasmPlugin.
 
 . Retrieve the *Admin_Access_token* using the Console UI.
 . Open the link:{openshift-url}[OpenShift Admin Console, window="_blank"] and login using the credentials below:
@@ -271,7 +271,7 @@ image::images/admin_access_token_3scale.png[admin_access_token_3scale, role="int
 .. *username*: `{user-username}`
 .. *password*: `{user-password}`
 
-. From the 3scale admin-portal navigate to *Account Settings > Personal > Tokens* and copy the Service Token of the *BookInfo Product (Istio Adapter)*. Note it down on a notepad
+. From the 3scale admin-portal navigate to *Account Settings > Personal > Tokens* and copy the Service Token of the *BookInfo Product (Istio)*. Note it down on a notepad
 +
 image::images/3scale-service-token.png[3scale-service-token, role="integr8ly-img-responsive"]
 +
@@ -280,7 +280,7 @@ image::images/3scale-service-token.png[3scale-service-token, role="integr8ly-img
 The service token will enable the permission for service mesh to be able to access only a particular 3scale product. 
 ===============================
 
-. From the 3scale admin-portal navigate to *Products > BookInfo Product (Istio Adapter)* . Scroll down to the *Configuration, Methods and Settings* section on the overview page and note down the product ID in a notepad
+. From the 3scale admin-portal navigate to *Products > BookInfo Product (Istio)* . Scroll down to the *Configuration, Methods and Settings* section on the overview page and note down the product ID in a notepad
 +
 image::images/service-id.png[service-id, role="integr8ly-img-responsive"]
 
@@ -288,22 +288,24 @@ image::images/service-id.png[service-id, role="integr8ly-img-responsive"]
 +
 [source,yaml,subs="attributes+"]
 ----
-apiVersion: maistra.io/v1
-kind: ServiceMeshExtension
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
 metadata:
  name: bookinfo
 spec:
- image: 'registry.redhat.io/openshift-service-mesh/3scale-auth-wasm-rhel8:0.0.1'
- phase: PostAuthZ
+ url: oci://quay.io/3scale/threescale-wasm-auth:v1.0.0
+ phase: AUTHZ
  priority: 100
- workloadSelector:
-   labels:
+ match:
+   - mode: SERVER
+ selector:
+   matchLabels:
      app: productpage
- config:
+ pluginConfig:
    api: v1
    system:
      name: system
-     token: VDG2U6c9kXwdetUH
+     token: Replace with Access Token
      upstream:
        name: >-
          outbound|3000||system-provider.threescale.svc.cluster.local
@@ -320,7 +322,7 @@ spec:
        url: 'http://backend-listener.threescale.svc.cluster.local'
    services:
      - id: '4'
-       token: cf939c57f946bb3c809508caabeac45db51782f1c671e4a2dd2dad57d29ba394
+       token: Replace with Service Token
        authorities:
          - '*'
        credentials:
@@ -351,6 +353,7 @@ spec:
            usages:
              - delta: 1
                name: hits
+
 ----
 
 . Open the link:https://onlineyamltools.com/edit-yaml[online yaml editor, window="_blank"]
@@ -359,11 +362,11 @@ spec:
 +
 image::images/yaml-online.png[yaml-online, role="integr8ly-img-responsive"]
 
-. On line *16* replace the existing token value with the *Access token* obtained from Openshift Console UI earlier
+. On line *18* replace the existing token value with the *Access token* obtained from Openshift Console UI earlier
 +
 image::images/yaml-online-access-token.png[yaml-online-access-token, role="integr8ly-img-responsive"]
 
-. On line *32* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
+. On line *34* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
 +
 [NOTE]
 ===============================
@@ -372,7 +375,7 @@ Most probably you don't have to change this value as we set the value of the Pro
 +
 image::images/yaml-online-Pid.png[yaml-online-Pid, role="integr8ly-img-responsive"]
 
-. On line *33* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
+. On line *35* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
 +
 image::images/yaml-online-service-token.png[yaml-online-service-token, role="integr8ly-img-responsive"]
 
@@ -391,11 +394,11 @@ If prompted again while starting the terminal:  Select the project *user1-servic
 ===============================
 
 
-. Create a Custom Resource Definition file for the Service Mesh Extension with name ServiceMeshExtension_bookinfo.yaml
+. Create a Custom Resource Definition file for the WASM Plugin with name WASM_bookinfo_bookinfo.yaml
 +
 [source,bash,subs="attributes+"]
 ----
-vim ServiceMeshExtension_bookinfo.yaml
+vim WASM_bookinfo.yaml
 ----
 
 . Copy & paste the modified yaml into this file
@@ -406,7 +409,7 @@ vim ServiceMeshExtension_bookinfo.yaml
 +
 [source,bash,subs="attributes+"]
 ----
-oc apply -f ServiceMeshExtension_bookinfo.yaml -n bookinfo
+oc apply -f WASM_bookinfo.yaml -n bookinfo
 ----
 
 Now test the 3scale Istio Ingress Integration.
@@ -454,7 +457,7 @@ curl {istio-ingress}/productpage?user_key=3scaleistiosecret
 .. *username*: `{user-username}`
 .. *password*: `{user-password}`
 
-. Select the *BookInfo Product (Istio Adapter)* product.
+. Select the *BookInfo Product (Istio)* product.
 
 . Click on *Analytics* and select *Traffic*.
 +
@@ -469,7 +472,7 @@ _Congratulations!_ You have completed the demo for Integration of Service Mesh a
 Were you able to access the Product API using the Istio endpoint?
 
 [type=verificationFail]
-Verify that the productpage pod is running, and an instance of the ServiceMeshExtension is succesfully created, and the patching of the productpage-v1 deployed worked without errors.
+Verify that the productpage pod is running, and an instance of the WASM Plugin is succesfully created, and the patching of the productpage-v1 deployed worked without errors.
 
 
 [time=10]
@@ -483,11 +486,11 @@ Now that you have the 3scale Istio Integration in place, you can try out the fol
 *Set a rate limit to the *BookInfo Istio Basic Plan* to 3 hits/min and try to check if rate limiting is applied correctly*.
 . Open the link:{3scale-admin}[3scale Admin console, window="_blank"]  and login
 
-. Navigate to *BookInfo Product (Istio Adapter)* product > Applications > Application Plans anc click on *BookInfo Istio Basic Plan*
+. Navigate to *BookInfo Product (Istio)* product > Applications > Application Plans anc click on *BookInfo Istio Basic Plan*
 +
 image::images/3scale-app-plan-nav.png[3scale-app-plan-nav, role="integr8ly-img-responsive"]
 
-. Scroll down to the *Metrics, Methods, Limits & Pricing Rules* section and clik on Limits
+. Scroll down to the *Metrics, Methods, Limits & Pricing Rules* section and click on Limits
 +
 image::images/3scale-limit-nav.png[3scale-limit-nav, role="integr8ly-img-responsive"]
 
@@ -519,31 +522,54 @@ _You should see an Access Forbidden message after you've crossed the limit_
 .. Note the *Credentials* secret. For this lab, this is set to `clientsecret`.
 
 .. Open the link:{3scale-admin}[3scale Admin console, window="_blank"]  and login.
-.. Select the *BookInfo Product (Istio Adapter)* and click on *Integration* and *Settings*.
+.. Select the *BookInfo Product (Istio)* and click on *Integration* and *Settings*.
 .. Change the Deployment to *Istio*.
 .. Change the Security to OIDC.
++
+image::images/3scale-OIDC-select.png[3scale-OIDC-select, role="integr8ly-img-responsive"]
 .. Enter the *OpenID Connect Issuer* below:
 +
 [source,bash,subs="attributes+"]
 ----
 https://3scale-admin:clientsecret@keycloak-sso.{openshift-app-host}/auth/realms/threescale-realm
 ----
++
+image::images/3scale-SSO-enter.png[3scale-SSO-enter, role="integr8ly-img-responsive"]
 
 .. Select the following OIDC Authorization Flows:
 ... _Authorization Code Flow_
 ... _Direct Access Grant Flow_
 +
+image::images/3scale-auth-flows.png[3scale-auth-flows, role="integr8ly-img-responsive"]
++
 NOTE: *Direct Access Grant Flow* enables us to login and pass the OIDC Token to 3scale without having to use PostMan or Browser to follow a redirect to SSO login with *Authorization Code Flow*.
 
 .. Scroll down, click on *Update Product*.
++
+image::images/3scale-SSO-update-prod.png[3scale-SSO-update-prod, role="integr8ly-img-responsive"]
+
 .. Select *Configuration* and click on *Update Configuration*.
++
+image::images/3scale-SSO-update-config.png[3scale-SSO-update-config, role="integr8ly-img-responsive"]
 
 .. Click on *Applications* and *Listing*.
++
+image::images/3scale-sso-app-nav.png[3scale-sso-app-nav, role="integr8ly-img-responsive"]
+
 .. Select *BookInfo Istio Basic App*.
++
+image::images/3scale-sso-istio-basic-app.png[3scale-sso-istio-basic-app, role="integr8ly-img-responsive"]
+
 .. Notice the API Credentials changed to client id/secret. Click on *Add Random Key* to create a client secret.
++
+image::images/3scale-sso-add-random-key.png[3scale-sso-add-random-key, role="integr8ly-img-responsive"]
+
+
 .. Make a note of the client id and client secret in a notepad
 +
 NOTE: You may need to refresh the page couple of times to check the client id/secret and generated correctly.
++
+image::images/3scale-sso-client-key-secret.png[3scale-sso-client-key-secret, role="integr8ly-img-responsive"]
 
 .. Add the redirect URL below to enable testing with Postman:
 +
@@ -551,6 +577,10 @@ NOTE: You may need to refresh the page couple of times to check the client id/se
 ----
 https://oauth.pstmn.io/v1/callback
 ----
++
+image::images/3scale-sso-postman-redirect-edit.png[3scale-sso-postman-redirect-edit, role="integr8ly-img-responsive"]
++
+image::3scale-sso-postman-redirect-add-info.png[3scale-sso-postman-redirect-add-info, role="integr8ly-img-responsive"]
 
 .. Login to the link:{sso-url}[Single Sign On Console, window="_blank"] and navigate to clients. Confirm that the new client id generated in 3scale is available in SSO console
 +
@@ -611,7 +641,7 @@ spec:
 oc apply -f RequestAuthentication_bookinfo-oidc.yaml -n bookinfo
 ----
 +
-The ServiceMeshExtension custom resource spec provides the configuration that the Proxy-WASM module reads from. The spec is embedded in the host and read by the Proxy-WASM module. Follow the below steps to configure the ServiceMeshExtension
+The WasmPlugin custom resource spec provides the configuration that the Proxy-WASM module reads from. The spec is embedded in the host and read by the Proxy-WASM module. Follow the below steps to configure the WASM Plugin
 
 
 
@@ -637,7 +667,7 @@ image::images/admin_access_token_3scale.png[admin_access_token_3scale, role="int
 ... *username*: `{user-username}`
 ... *password*: `{user-password}`
 
-.. From the 3scale admin-portal navigate to *Account Settings > Personal > Tokens* and copy the Service Token of the *BookInfo Product (Istio Adapter)*. Note it down on a notepad
+.. From the 3scale admin-portal navigate to *Account Settings > Personal > Tokens* and copy the Service Token of the *BookInfo Product (Istio)*. Note it down on a notepad
 +
 image::images/3scale-service-token.png[3scale-service-token, role="integr8ly-img-responsive"]
 +
@@ -646,7 +676,7 @@ image::images/3scale-service-token.png[3scale-service-token, role="integr8ly-img
 The service token will enable the permission for service mesh to be able to access only a particular 3scale product. 
 ===============================
 
-.. From the 3scale admin-portal navigate to *Products > BookInfo Product (Istio Adapter)* . Scroll down to the *Configuration, Methods and Settings* section on the overview page and note down the product ID in a notepad
+.. From the 3scale admin-portal navigate to *Products > BookInfo Product (Istio)* . Scroll down to the *Configuration, Methods and Settings* section on the overview page and note down the product ID in a notepad
 +
 image::images/service-id.png[service-id, role="integr8ly-img-responsive"]
 
@@ -654,23 +684,24 @@ image::images/service-id.png[service-id, role="integr8ly-img-responsive"]
 +
 [source,yaml,subs="attributes+"]
 ----
-apiVersion: maistra.io/v1
-kind: ServiceMeshExtension
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
 metadata:
- name: bookinfo-oidc
- namespace: bookinfo
+ name: bookinfo
 spec:
- image: 'registry.redhat.io/openshift-service-mesh/3scale-auth-wasm-rhel8:0.0.1'
- phase: PostAuthZ
+ url: oci://quay.io/3scale/threescale-wasm-auth:v1.0.0
+ phase: AUTHZ
  priority: 100
- workloadSelector:
-   labels:
+ match:
+   - mode: SERVER
+ selector:
+   matchLabels:
      app: productpage
- config:
+ pluginConfig:
    api: v1
    system:
      name: system
-     token: VDG2U6c9kXwdetUH
+     token: Replace with Access Token
      upstream:
        name: >-
          outbound|3000||system-provider.threescale.svc.cluster.local
@@ -686,11 +717,11 @@ spec:
        timeout: 5000
        url: 'http://backend-listener.threescale.svc.cluster.local'
    services:
-    - id: '4'
-      token: cf939c57f946bb3c809508caabeac45db51782f1c671e4a2dd2dad57d29ba394
-      authorities:
-        - '*'
-      credentials:
+     - id: '4'
+       token: Replace with Service Token
+       authorities:
+         - '*'
+       credentials:
         app_id:
           - filter:
               path:
@@ -701,25 +732,27 @@ spec:
               ops:
                 - take:
                     head: 1
-      mapping_rules:
-        - method: GET
-          pattern: /
-          usages:
-            - delta: 1
-              name: hits
+       mapping_rules:
+         - method: GET
+           pattern: /
+           usages:
+             - delta: 1
+               name: hits
+
+
 ----
 
 . Open the link:https://onlineyamltools.com/edit-yaml[online yaml editor, window="_blank"]
 
 . Paste the above copied yaml into the editor as shown below
 +
-image::images/yaml-online-oidc.png[yaml-online-oidc, role="integr8ly-img-responsive"]
+image::images/yaml-online.png[yaml-online, role="integr8ly-img-responsive"]
 
-. On line *17* replace the existing token value with the *Access token* obtained from Openshift Console UI earlier
+. On line *18* replace the existing token value with the *Access token* obtained from Openshift Console UI earlier
 +
 image::images/yaml-online-access-token-oidc.png[yaml-online-access-token-oidc, role="integr8ly-img-responsive"]
 
-. On line *33* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
+. On line *34* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
 +
 [NOTE]
 ===============================
@@ -728,7 +761,7 @@ Most probably you don't have to change this value as we set the value of the Pro
 +
 image::images/yaml-online-Pid-oidc.png[yaml-online-Pid-oidc, role="integr8ly-img-responsive"]
 
-. On line *34* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
+. On line *35* replace the existing ID value with the *Product ID* obtained from 3scale Admin Portal earlier
 +
 image::images/yaml-online-service-token-oidc.png[yaml-online-service-token-oidc, role="integr8ly-img-responsive"]
 
@@ -747,29 +780,29 @@ If prompted again while starting the terminal:  Select the project *user1-servic
 ===============================
 
 
-. Create a Custom Resource Definition file for the Service Mesh Extension with name ServiceMeshExtension_bookinfo-oidc.yaml
+. Create a Custom Resource Definition file for the WASM Plugin with name WASM_bookinfo-oidc.yaml
 +
 [source,bash,subs="attributes+"]
 ----
-vim ServiceMeshExtension_bookinfo-oidc.yaml
+vim WASM_bookinfo-oidc.yaml
 ----
 
 . Copy & paste the modified yaml into this file
 
 . Save the file by hitting the 'esc' button followed by :wq and hit enter
 
-. Please delete the ServiceMeshExtension created earlier
+. Please delete the WasmPlugin created earlier that was used to enable a simple user_key based authentication
 +
 [source,bash,subs="attributes+"]
 ----
-oc delete sme bookinfo -n bookinfo
+oc delete WasmPlugin bookinfo -n bookinfo
 ----
 
 . Now Apply the newly created CRD to your cluster using the below command
 +
 [source,bash,subs="attributes+"]
 ----
-oc apply -f ServiceMeshExtension_bookinfo-oidc.yaml -n bookinfo
+oc apply -f WASM_bookinfo-oidc.yaml -n bookinfo
 ----
 
 . You can now verify the policy enforcement by first calling the endpoint without credentials and then later using the api key.
