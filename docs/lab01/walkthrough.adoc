@@ -580,7 +580,7 @@ https://oauth.pstmn.io/v1/callback
 +
 image::images/3scale-sso-postman-redirect-edit.png[3scale-sso-postman-redirect-edit, role="integr8ly-img-responsive"]
 +
-image::3scale-sso-postman-redirect-add-info.png[3scale-sso-postman-redirect-add-info, role="integr8ly-img-responsive"]
+image::images/3scale-sso-postman-redirect-add-info.png[3scale-sso-postman-redirect-add-info, role="integr8ly-img-responsive"]
 
 .. Login to the link:{sso-url}[Single Sign On Console, window="_blank"] and navigate to clients. Confirm that the new client id generated in 3scale is available in SSO console
 +
